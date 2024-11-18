@@ -8,9 +8,12 @@ import {
   Param,
   Patch,
   Post,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Board, BoardStatus } from 'src/board/board.model';
 import { title } from 'process';
+import { BoardStatusValidationPipe } from 'src/board/pipes/board-status-validation.pipe';
 
 @Controller('board')
 export class BoardController {
@@ -36,12 +39,16 @@ export class BoardController {
   }
 
   @Delete(':id')
+  @UsePipes(ValidationPipe)
   deleteBaord(@Param('id') id: string) {
     return this.boardService.deleteBoard(id);
   }
 
   @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Body('status') status: BoardStatus) {
+  updateStatus(
+    @Param('id') id: string,
+    @Body('status', BoardStatusValidationPipe) status: BoardStatus,
+  ) {
     return this.boardService.updateStatus(id, status);
   }
 }
