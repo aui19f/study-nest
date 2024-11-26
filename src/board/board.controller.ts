@@ -9,15 +9,16 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  UsePipes,
-  ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { BoardStatus } from 'src/board/board.model';
 import { title } from 'process';
 import { BoardStatusValidationPipe } from 'src/board/pipes/board-status-validation.pipe';
 import { Board } from 'src/board/board.entity';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Controller('board')
+@UseGuards(AuthModule)
 export class BoardController {
   constructor(private boardService: BoardService) {}
 
