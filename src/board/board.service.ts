@@ -7,6 +7,7 @@ import { v1 as uuid } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Board } from 'src/board/board.entity';
 import { Repository } from 'typeorm';
+import { User } from 'src/auth/user.entity';
 
 @Injectable()
 export class BoardService {
@@ -19,6 +20,10 @@ export class BoardService {
     return this.boardRepository.find();
   }
 
+  async getMyBoards(user) {
+    return await this.boardRepository.find({ where: { id: user.id } });
+  }
+
   async getBoard(id: number): Promise<Board> {
     const found = this.boardRepository.findOne({ where: { id } });
     if (!found) {
@@ -26,27 +31,30 @@ export class BoardService {
     }
     return found;
   }
-
-  async createBoard(createBoardDto: CreateBoardDto) {
+  //
+  async createBoard(
+    createBoardDto: CreateBoardDto,
+    user: User,
+  ): Promise<Board> {
     const { title, description } = createBoardDto;
     const boardData = {
       title,
       description,
       updateAt: new Date(),
       status: BoardStatus.PUBLIC,
+      user,
     };
 
-    console.log(boardData);
+    console.log('boardData', boardData);
 
-    await this.boardRepository.save(
+    return await this.boardRepository.save(
       await this.boardRepository.create({ ...boardData }),
     );
-    return boardData;
   }
 
-  async deleteBoard(id) {
+  async deleteBoard(id, user) {
     // const board = this.getBoard(id);
-    const result = await this.boardRepository.delete({ id });
+    const result = await this.boardRepository.delete({ id, user });
     if (result.affected === 0) {
       // throw
     }
